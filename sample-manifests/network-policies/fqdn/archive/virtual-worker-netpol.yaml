@@ -1,0 +1,25 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: virtual-worker-policy
+  namespace: pets
+spec:
+  endpointSelector:
+    matchLabels:
+      app: virtual-worker
+  ingress:
+    - {}
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+          rules:
+            dns:
+              - matchPattern: "makeline-service.pets.svc.cluster.local"
+    - toFQDNs:
+        - matchName: "makeline-service.pets.svc.cluster.local"

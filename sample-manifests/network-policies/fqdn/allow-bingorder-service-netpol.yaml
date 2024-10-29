@@ -1,0 +1,27 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: order-service-policy
+  namespace: pets
+spec:
+  endpointSelector:
+    matchLabels:
+      app: order-service
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+        - matchLabels:
+            io.kubernetes.pod.namespace: pets
+            app: rabbitmq
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+          rules:
+            dns:
+              - matchPattern: "rabbitmq.pets.svc.cluster.local"
+              - matchPattern: "*.bing.com"
+    - toFQDNs:
+        - matchPattern: "*.bing.com"
